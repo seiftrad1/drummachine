@@ -1,6 +1,61 @@
 import React, { useEffect, useState } from "react";
+import styled from "styled-components";
 
+const Button1 = styled.button`
+  position: relative;
+  float: left;
+  width: 100px;
+  height: 80px;
+  margin-right: 10px;
+  border-radius: 5px;
+  padding-top: 4px;
+  box-sizing: border-box;
+  cursor: pointer;
+  margin-top: 10px;
+  box-shadow: black 3px 3px 5px;
+`;
+const Div = styled.div`
+  width: 332px;
+  height: 295px;
+  display: inline-block;
+  margin: 20px;
+`;
+const Container = styled.div`
+  outline: 5px solid black;
+  position: relative;
+  width: 660px;
+  height: 660px;
+  margin: auto;
+  text-align: center;
+  background-color: grey;
+`;
+const ControlContainer = styled.div`
+  width: 240px;
+  height: $padHeight * 3 + 32;
+  display: inline-block;
+  margin: 40px 20px 0 10px;
+  vertical-align: top;
+`;
+const Power = styled.div`
+  width: 23px;
+  height: 19px;
+  background: blue;
+  border: 1px solid black;
+  box-sizing: border-box;
+  cursor: pointer;
+`;
+const Select = styled.div`
+  margin: auto;
+  border: 1px solid black;
+  width: 50px;
+  height: 20px;
+  padding: 1px;
+  background-color: black;
+`;
 export default function DrumMachine() {
+  const [power, setPower] = useState(false);
+  const [name, setName] = useState("heater");
+
   const audioClips = [
     {
       keyCode: 81,
@@ -59,6 +114,7 @@ export default function DrumMachine() {
   ];
   function Pad({ clip }) {
     const [active, setActive] = useState(false);
+
     useEffect(() => {
       document.addEventListener("keydown", handleKeyPress);
       return () => {
@@ -71,31 +127,49 @@ export default function DrumMachine() {
       }
     };
     const playSound = () => {
-      const audioTag = document.getElementById(clip.keyTrigger);
-      setActive(true);
-      setTimeout(() => setActive(false), 200);
-      audioTag.currentTime = 0;
-      audioTag.play();
+      if (power === true) {
+        const audioTag = document.getElementById(clip.keyTrigger);
+        setActive(true);
+        setTimeout(() => setActive(false), 200);
+        audioTag.currentTime = 0;
+
+        console.log(clip.id);
+
+        audioTag.play();
+        setTimeout(() => setName(clip.id), 400);
+      } else {
+        return null;
+      }
     };
     return (
-      <div
-        onClick={playSound}
-        className={`btn btn-secondary p-4 m-3 ${active && "btn-warning"}`}
-      >
+      <Button1 onClick={playSound} className={` ${active && "btn-warning"}`}>
         <audio src={clip.url} id={clip.keyTrigger} className="clip"></audio>
         {clip.keyTrigger}
-      </div>
+      </Button1>
     );
   }
-
+  const select = () => {
+    if (power === false) {
+      setPower(true);
+    } else setPower(false);
+    console.log("true");
+  };
   return (
     <div className="bg-info min-vh-100 text-white">
-      <div className="text-center">
+      <Container>
         <h2>Drum machine</h2>
-        {audioClips.map((clip) => (
-          <Pad key={clip.id} clip={clip} />
-        ))}
-      </div>
+        <Div>
+          {audioClips.map((clip) => (
+            <Pad key={clip.id} clip={clip} />
+          ))}
+        </Div>{" "}
+        <ControlContainer>
+          <Select onClick={select}>
+            <Power style={{ float: power && "right" }} />
+          </Select>
+          {name}
+        </ControlContainer>
+      </Container>
     </div>
   );
 }
