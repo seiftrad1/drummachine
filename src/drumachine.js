@@ -55,6 +55,8 @@ const Select = styled.div`
 export default function DrumMachine() {
   const [power, setPower] = useState(false);
   const [name, setName] = useState("heater");
+  const [volume, setVolume] = useState(1);
+  const [swap, setSwap] = useState(false);
 
   const audioClips = [
     {
@@ -112,7 +114,64 @@ export default function DrumMachine() {
       url: "https://s3.amazonaws.com/freecodecamp/drums/Cev_H2.mp3",
     },
   ];
-  function Pad({ clip }) {
+  const bankTwo = [
+    {
+      keyCode: 81,
+      keyTrigger: "Q",
+      id: "Chord-1",
+      url: "https://s3.amazonaws.com/freecodecamp/drums/Chord_1.mp3",
+    },
+    {
+      keyCode: 87,
+      keyTrigger: "W",
+      id: "Chord-2",
+      url: "https://s3.amazonaws.com/freecodecamp/drums/Chord_2.mp3",
+    },
+    {
+      keyCode: 69,
+      keyTrigger: "E",
+      id: "Chord-3",
+      url: "https://s3.amazonaws.com/freecodecamp/drums/Chord_3.mp3",
+    },
+    {
+      keyCode: 65,
+      keyTrigger: "A",
+      id: "Shaker",
+      url: "https://s3.amazonaws.com/freecodecamp/drums/Give_us_a_light.mp3",
+    },
+    {
+      keyCode: 83,
+      keyTrigger: "S",
+      id: "Open-HH",
+      url: "https://s3.amazonaws.com/freecodecamp/drums/Dry_Ohh.mp3",
+    },
+    {
+      keyCode: 68,
+      keyTrigger: "D",
+      id: "Closed-HH",
+      url: "https://s3.amazonaws.com/freecodecamp/drums/Bld_H1.mp3",
+    },
+    {
+      keyCode: 90,
+      keyTrigger: "Z",
+      id: "Punchy-Kick",
+      url: "https://s3.amazonaws.com/freecodecamp/drums/punchy_kick_1.mp3",
+    },
+    {
+      keyCode: 88,
+      keyTrigger: "X",
+      id: "Side-Stick",
+      url: "https://s3.amazonaws.com/freecodecamp/drums/side_stick_1.mp3",
+    },
+    {
+      keyCode: 67,
+      keyTrigger: "C",
+      id: "Snare",
+      url: "https://s3.amazonaws.com/freecodecamp/drums/Brk_Snr.mp3",
+    },
+  ];
+
+  function Pad({ clip, volume }) {
     const [active, setActive] = useState(false);
 
     useEffect(() => {
@@ -132,7 +191,7 @@ export default function DrumMachine() {
         setActive(true);
         setTimeout(() => setActive(false), 200);
         audioTag.currentTime = 0;
-
+        audioTag.volume = volume;
         console.log(clip.id);
 
         audioTag.play();
@@ -142,7 +201,11 @@ export default function DrumMachine() {
       }
     };
     return (
-      <Button1 onClick={playSound} className={` ${active && "btn-warning"}`}>
+      <Button1
+        onClick={playSound}
+        className={`${active && "btn-warning"} drum-pad`}
+        id="drum-pad"
+      >
         <audio src={clip.url} id={clip.keyTrigger} className="clip"></audio>
         {clip.keyTrigger}
       </Button1>
@@ -154,20 +217,54 @@ export default function DrumMachine() {
     } else setPower(false);
     console.log("true");
   };
+  const swapp = () => {
+    if (swap === false) {
+      setSwap(true);
+    } else setSwap(false);
+    console.log("true");
+  };
   return (
     <div className="bg-info min-vh-100 text-white">
-      <Container>
+      <Container id="drum-machine">
         <h2>Drum machine</h2>
-        <Div>
-          {audioClips.map((clip) => (
-            <Pad key={clip.id} clip={clip} />
-          ))}
+        <Div id="display">
+          {swap
+            ? bankTwo.map((clip) => (
+                <Pad
+                  className="drum-pad"
+                  key={clip.id}
+                  clip={clip}
+                  volume={volume}
+                />
+              ))
+            : audioClips.map((clip) => (
+                <Pad key={clip.id} clip={clip} volume={volume} />
+              ))}
         </Div>{" "}
         <ControlContainer>
+          {" "}
           <Select onClick={select}>
             <Power style={{ float: power && "right" }} />
-          </Select>
-          {name}
+          </Select>{" "}
+          <ControlContainer>
+            {" "}
+            <p id="display">{name}</p>
+            <h4>volume</h4>
+            <input
+              className="w-50"
+              type="range"
+              step="0.01"
+              value={volume}
+              max="1"
+              min="0"
+              name=""
+              id=""
+              onChange={(e) => setVolume(e.target.value)}
+            />
+            <Select onClick={swapp}>
+              <Power style={{ float: swap && "right" }} />
+            </Select>
+          </ControlContainer>{" "}
         </ControlContainer>
       </Container>
     </div>
